@@ -1,4 +1,5 @@
 from figure.figure import Figure
+from constants import X, Y
 
 
 class King(Figure):
@@ -11,6 +12,16 @@ class King(Figure):
             return self.symbol + "B"
         else:
             return self.symbol + "W"
+
+    def validate_move(self, position):
+            #one cell forward is ok, also +1/-1 in diagonal
+        horizontal_movement = abs(position[Y]-self.position[Y])
+        vertical_movement = abs(position[X] - self.position[X])
+
+        if horizontal_movement in (0, 1) and vertical_movement in (0, 1):
+            return True
+
+        return False
 
     @classmethod
     def make_instances(cls):

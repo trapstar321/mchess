@@ -1,4 +1,5 @@
 from figure.figure import Figure
+from constants import X, Y
 
 
 class Bishop(Figure):
@@ -11,6 +12,15 @@ class Bishop(Figure):
             return self.symbol + "B"
         else:
             return self.symbol + "W"
+
+    def validate_move(self, position):
+        vertical_diff = abs(self.position[X]-position[X])
+        horizontal_diff = abs(self.position[Y]-position[Y])
+
+        if vertical_diff == horizontal_diff:
+            return True
+
+        return False
 
     @classmethod
     def make_instances(cls):

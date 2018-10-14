@@ -19,7 +19,7 @@ class Pawn(Figure):
             return -1
 
     def validate_move(self, position):
-        # can move two cells only if horizontal hasn't changed
+        # can move two cells only if is at beginning and horizontal hasn't changed
         if self.is_at_beginning() \
                 and position[Y] == self.position[Y]:
             #two cells forward is ok
@@ -28,9 +28,9 @@ class Pawn(Figure):
             elif position[X] - self.position[X] == self.allowed_vertical_direction():
                 return True
         else:
-            #one cell forward is ok, also +1/-1 in diagonal
-            diagonal_movement = abs(position[Y]-self.position[Y])
-            if diagonal_movement == 1 or diagonal_movement == 0:
+            #one cell forward is ok, also +1/-1 in horizontal
+            horizontal_movement = abs(position[Y]-self.position[Y])
+            if horizontal_movement == 1 or horizontal_movement == 0:
                 if position[X] - self.position[X] == self.allowed_vertical_direction()*1:
                     return True
 

@@ -1,4 +1,5 @@
 from figure.figure import Figure
+from constants import X, Y
 
 
 class Rook(Figure):
@@ -12,6 +13,13 @@ class Rook(Figure):
             return self.symbol + "B"
         else:
             return self.symbol + "W"
+
+    def validate_move(self, position):
+        #on of two axis must be equal to original position
+        if self.position[X] == position[X] or self.position[Y] == position[Y]:
+            return True
+
+        return False
 
     @classmethod
     def make_instances(cls):
