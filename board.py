@@ -4,6 +4,7 @@ from figure.rook import Rook
 from figure.knight import Knight
 from figure.bishop import Bishop
 from figure.pawn import Pawn
+from figure.blank import Blank
 from constants import X, Y
 
 
@@ -18,7 +19,7 @@ class Board:
         self.board = []
 
         for x in range(0, Board.BOARD_LENGTH):
-            self.board.append(['  ']*Board.BOARD_LENGTH)
+            self.board.append(['']*Board.BOARD_LENGTH)
 
         figures = []
         figures.extend(King.make_instances())
@@ -27,6 +28,7 @@ class Board:
         figures.extend(Knight.make_instances())
         figures.extend(Bishop.make_instances())
         figures.extend(Pawn.make_instances())
+        figures.extend(Blank.make_instances())
 
         for figure in figures:
             self.add_figure(figure)

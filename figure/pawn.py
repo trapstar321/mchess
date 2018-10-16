@@ -1,5 +1,6 @@
 from figure.figure import Figure
 from constants import X, Y
+from os.path import join as combine_path
 
 class Pawn(Figure):
     def __init__(self, is_black, position):
@@ -18,24 +19,34 @@ class Pawn(Figure):
         else:
             return -1
 
-    def validate_move(self, position):
+    def validate_move(self, new_position):
         # can move two cells only if is at beginning and horizontal hasn't changed
         if self.is_at_beginning() \
-                and position[Y] == self.position[Y]:
+                and new_position[Y] == self.position[Y]:
             #two cells forward is ok
-            if position[X] - self.position[X] == self.allowed_vertical_direction()*2:
+            if new_position[X] - self.position[X] == self.allowed_vertical_direction()*2:
                 return True
-            elif position[X] - self.position[X] == self.allowed_vertical_direction():
+            elif new_position[X] - self.position[X] == self.allowed_vertical_direction():
                 return True
         else:
             #one cell forward is ok, also +1/-1 in horizontal
-            horizontal_movement = abs(position[Y]-self.position[Y])
+            horizontal_movement = abs(new_position[Y]-self.position[Y])
             if horizontal_movement == 1 or horizontal_movement == 0:
-                if position[X] - self.position[X] == self.allowed_vertical_direction()*1:
+                if new_position[X] - self.position[X] == self.allowed_vertical_direction()*1:
                     return True
 
         return False
 
+    def move_positions(self, new_position):
+        vertical_diff = abs(self.position[X] - new_position[X])
+
+        moves = [self.position]
+
+        if vertical_diff == 2:
+            moves.append((self.position[X]+(-1 if self.position[X] > new_position[X] else 1), self.position[Y]))
+
+        moves.append(new_position)
+        return tuple(moves)
 
     @classmethod
     def make_instances(cls):
@@ -46,3 +57,7 @@ class Pawn(Figure):
             Pawn(False, (6, 0)), Pawn(False, (6, 1)), Pawn(False, (6, 2)), Pawn(False, (6, 3)),
             Pawn(False, (6, 4)), Pawn(False, (6, 5)), Pawn(False, (6, 6)), Pawn(False, (6, 7))
         ]
+
+    def icon_path(self):
+        return combine_path(Figure.base_icon_path, "pawn_black.png") \
+            if self.is_black else combine_path(Figure.base_icon_path, "pawn_white.png")

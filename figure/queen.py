@@ -1,4 +1,9 @@
 from figure.figure import Figure
+from os.path import join as combine_path
+from figure.movement.horizontal import move_positions as move_positions_horizontal
+from figure.movement.horizontal import validate_move as validate_move_horizontal
+from figure.movement.vertical import move_positions as move_positions_vertical
+from figure.movement.vertical import validate_move as validate_move_vertical
 
 
 class Queen(Figure):
@@ -12,6 +17,26 @@ class Queen(Figure):
         else:
             return self.symbol + "W"
 
+    def validate_move(self, new_position):
+        vertical_valid = validate_move_vertical(self.position, new_position)
+        horizontal_valid = validate_move_horizontal(self.position, new_position)
+
+        return True if vertical_valid or horizontal_valid else False
+
+    def move_positions(self, new_position):
+        vertical_valid = validate_move_vertical(self.position, new_position)
+        horizontal_valid = validate_move_horizontal(self.position, new_position)
+
+        if vertical_valid:
+            return move_positions_vertical(self.position, new_position)
+
+        if horizontal_valid:
+            return move_positions_horizontal(self.position, new_position)
+
     @classmethod
     def make_instances(cls):
         return [Queen(True, (0, 3)), Queen(False, (7, 3))]
+
+    def icon_path(self):
+        return combine_path(Figure.base_icon_path, "queen_black.png") \
+            if self.is_black else combine_path(Figure.base_icon_path, "queen_white.png")

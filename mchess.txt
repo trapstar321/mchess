@@ -13,6 +13,14 @@ na serveru je gejm
 klase
 	ploča
 	figura
+    move - ima sve pozicije u potezu
+         - generira ih figure klasa
+         - imate će vrijeme kada je potez napravljen
+         - field da označi da li je pojedena figura
+         - field da označi da li je šah, mat pat
+         - field da označi da li je potez validan
+
+treba zamijeniti nakon poteza početnu poziciju sa Blank
 
 
 klijent nema nikakve kontrole samo miče figure kad mu server potvrdi
