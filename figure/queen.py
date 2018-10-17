@@ -17,11 +17,16 @@ class Queen(Figure):
         else:
             return self.symbol + "W"
 
-    def validate_move(self, new_position, target):
+    def validate_move(self, board, new_position, target):
         vertical_valid = validate_move_vertical(self.position, new_position)
         horizontal_valid = validate_move_horizontal(self.position, new_position)
 
-        return True if vertical_valid or horizontal_valid else False
+        valid = True if vertical_valid or horizontal_valid else False
+
+        if valid:
+            return super().validate_move(board, new_position, target)
+        else:
+            return valid
 
     def move_positions(self, new_position):
         vertical_valid = validate_move_vertical(self.position, new_position)

@@ -13,15 +13,22 @@ class Knight(Figure):
         else:
             return self.symbol + "W"
 
-    def validate_move(self, new_position, target):
-        #one axis must be 2x and other 1x in difference
+    def validate_move(self, board, new_position, target):
+        # one axis must be 2x and other 1x in difference
         vertical_diff = abs(self.position[X] - new_position[X])
         horizontal_diff = abs(self.position[Y] - new_position[Y])
 
-        if (vertical_diff == 2 and horizontal_diff == 1) or (vertical_diff == 1 and horizontal_diff == 2):
-            return True
+        valid = False
 
-        return False
+        if (vertical_diff == 2 and horizontal_diff == 1) or (vertical_diff == 1 and horizontal_diff == 2):
+            valid = True
+        else:
+            valid = False
+
+        if valid:
+            return super().validate_move(board, new_position, target)
+        else:
+            return valid
 
     def move_direction(self, new_position, axis):
         if new_position[axis]>self.position[axis]:

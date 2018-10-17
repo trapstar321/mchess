@@ -21,15 +21,16 @@ class Pawn(Figure):
         else:
             return -1
 
-    def validate_move(self, new_position, target):
+    def validate_move(self, board, new_position, target):
+        valid = False
         # can move two cells only if is at beginning and horizontal hasn't changed
         if self.is_at_beginning() \
                 and new_position[Y] == self.position[Y]:
             # two cells forward is ok
             if new_position[X] - self.position[X] == self.allowed_vertical_direction()*2:
-                return True
+                valid = True
             elif new_position[X] - self.position[X] == self.allowed_vertical_direction():
-                return True
+                valid = True
         else:
             # one cell forward is ok
             # diagonal movement only if its enemy figure
@@ -39,21 +40,24 @@ class Pawn(Figure):
                 # black moves from 0 to 7 only if target is blank
                 if self.is_black:
                     if vertical_movement == 1:
-                        return False if not isinstance(target, Blank) else True
+                        valid = False if not isinstance(target, Blank) else True
                     else:
-                        return False
+                        valid = False
                 # white moves from 7 to 0 only if target is blank
                 elif not self.is_black:
                     if vertical_movement == -1:
-                        return False if not isinstance(target, Blank) else True
+                        valid = False if not isinstance(target, Blank) else True
             elif horizontal_movement == 1:
                 if new_position[X] - self.position[X] == self.allowed_vertical_direction()*1:
                     if not isinstance(target, Blank) and not target.is_black == self.is_black:
-                        return True
+                        valid = True
                     else:
-                        return False
+                        valid = False
 
-        return False
+        if valid:
+            return super().validate_move(board, new_position, target)
+        else:
+            return valid
 
     def move_positions(self, new_position):
         vertical_diff = abs(self.position[X] - new_position[X])

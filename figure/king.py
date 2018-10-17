@@ -14,15 +14,22 @@ class King(Figure):
         else:
             return self.symbol + "W"
 
-    def validate_move(self, new_position, target):
-            #one cell forward is ok, also +1/-1 in diagonal
+    def validate_move(self, board, new_position, target):
+        # one cell forward is ok, also +1/-1 in diagonal
         horizontal_movement = abs(new_position[Y]-self.position[Y])
         vertical_movement = abs(new_position[X] - self.position[X])
 
-        if horizontal_movement in (0, 1) and vertical_movement in (0, 1):
-            return True
+        valid = False
 
-        return False
+        if horizontal_movement in (0, 1) and vertical_movement in (0, 1):
+            valid = True
+        else:
+            valid = False
+
+        if valid:
+            return super().validate_move(board, new_position, target)
+        else:
+            return valid
 
     def move_positions(self, new_position):
         moves = (self.position, new_position)

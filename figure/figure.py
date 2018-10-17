@@ -1,5 +1,7 @@
+#from figure.blank import Blank
 from constants import X, Y
 from PIL import Image, ImageTk
+
 
 class Figure:
     base_icon_path = "figure/icons"
@@ -16,8 +18,20 @@ class Figure:
     def make_instances(cls):
         pass
 
-    def validate_move(self, new_position, target):
-        pass
+    def validate_move(self, board, new_position, target):
+        valid = True
+        moves = self.move_positions(self.position)
+
+        # for move in moves[1:-1]:
+        #     # move is not valid if target is of same team
+        #     if not isinstance(board.board[move[X]][move[Y]], Blank):
+        #         valid = False
+        #         break
+        #
+        # if not isinstance(target, Blank) and not target.is_black == self.is_black:
+        #     valid = True
+
+        return valid
 
     def move_positions(self, new_position):
         pass

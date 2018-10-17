@@ -2,6 +2,7 @@ from figure.figure import Figure
 from figure.movement.vertical import *
 from os.path import join as combine_path
 
+
 class Bishop(Figure):
     def __init__(self, is_black, position):
         super().__init__(is_black, position)
@@ -13,8 +14,10 @@ class Bishop(Figure):
         else:
             return self.symbol + "W"
 
-    def validate_move(self, new_position, target):
-        return validate_move(self.position, new_position)
+    def validate_move(self, board, new_position, target):
+        if validate_move(self.position, new_position):
+            return super().validate_move(board, new_position, target)
+        return False
 
     def move_positions(self, new_position):
         return move_positions(self.position, new_position)

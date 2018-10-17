@@ -1,5 +1,4 @@
 from board import Board
-from move import Move
 from tkinter import Tk
 from gui import MChessGUI
 
