@@ -14,7 +14,7 @@ class Rook(Figure):
         else:
             return self.symbol + "W"
 
-    def validate_move(self, new_position):
+    def validate_move(self, new_position, target):
         return validate_move(self.position, new_position)
 
     def move_positions(self, new_position):

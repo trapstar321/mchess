@@ -17,7 +17,7 @@ class Queen(Figure):
         else:
             return self.symbol + "W"
 
-    def validate_move(self, new_position):
+    def validate_move(self, new_position, target):
         vertical_valid = validate_move_vertical(self.position, new_position)
         horizontal_valid = validate_move_horizontal(self.position, new_position)
 

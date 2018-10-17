@@ -1,6 +1,8 @@
 from figure.figure import Figure
 from constants import X, Y
 from os.path import join as combine_path
+from figure.blank import Blank
+
 
 class Pawn(Figure):
     def __init__(self, is_black, position):
@@ -19,21 +21,37 @@ class Pawn(Figure):
         else:
             return -1
 
-    def validate_move(self, new_position):
+    def validate_move(self, new_position, target):
         # can move two cells only if is at beginning and horizontal hasn't changed
         if self.is_at_beginning() \
                 and new_position[Y] == self.position[Y]:
-            #two cells forward is ok
+            # two cells forward is ok
             if new_position[X] - self.position[X] == self.allowed_vertical_direction()*2:
                 return True
             elif new_position[X] - self.position[X] == self.allowed_vertical_direction():
                 return True
         else:
-            #one cell forward is ok, also +1/-1 in horizontal
+            # one cell forward is ok
+            # diagonal movement only if its enemy figure
             horizontal_movement = abs(new_position[Y]-self.position[Y])
-            if horizontal_movement == 1 or horizontal_movement == 0:
+            vertical_movement = new_position[X] - self.position[X]
+            if horizontal_movement == 0:
+                # black moves from 0 to 7 only if target is blank
+                if self.is_black:
+                    if vertical_movement == 1:
+                        return False if not isinstance(target, Blank) else True
+                    else:
+                        return False
+                # white moves from 7 to 0 only if target is blank
+                elif not self.is_black:
+                    if vertical_movement == -1:
+                        return False if not isinstance(target, Blank) else True
+            elif horizontal_movement == 1:
                 if new_position[X] - self.position[X] == self.allowed_vertical_direction()*1:
-                    return True
+                    if not isinstance(target, Blank) and not target.is_black == self.is_black:
+                        return True
+                    else:
+                        return False
 
         return False
 

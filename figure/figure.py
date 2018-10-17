@@ -16,7 +16,7 @@ class Figure:
     def make_instances(cls):
         pass
 
-    def validate_move(self, new_position):
+    def validate_move(self, new_position, target):
         pass
 
     def move_positions(self, new_position):
@@ -25,9 +25,6 @@ class Figure:
     def is_at_beginning(self):
         return self.begin_position[X] == self.position[X] \
             and self.begin_position[Y] == self.position[Y]
-
-    def can_skip_figures(self):
-        return False
 
     def icon_path(self):
         pass

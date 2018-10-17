@@ -6,6 +6,7 @@ from figure.bishop import Bishop
 from figure.pawn import Pawn
 from figure.blank import Blank
 from constants import X, Y
+from move import Move
 
 
 class Board:
@@ -43,6 +44,28 @@ class Board:
     @classmethod
     def cell_to_position(cls, x, y):
         return Board.INVERTED_X_MAPPING[x], Board.INVERTED_Y_MAPPING[y]
+
+    def move(self, source, target):
+        m = Move(source, target)
+
+        if m.validate(self):
+            source_pos = (source.position[X], source.position[Y])
+            target_pos = (target.position[X], target.position[Y])
+
+            if not source.is_black == target.is_black:
+                print('Eat target')
+            else:
+                print('Swap with blank cell')
+
+            self.board[source.position[X]][source.position[Y]] = target
+            self.board[target.position[X]][target.position[Y]] = source
+
+            source.position = target_pos
+            target.position = source_pos
+
+            return True
+
+        return False
 
     def __str__(self):
         result = ""

@@ -4,19 +4,20 @@ from figure.blank import Blank
 
 
 class Move:
-    def __init__(self, figure, position):
-        self.figure = figure
-        self.target_position = position
+    def __init__(self, source, target):
+        self.source = source
+        self.target = target
         self.time = datetime.now
 
     def validate(self, board):
-        valid = self.figure.validate_move(self.target_position)
+        valid = self.source.validate_move(self.target.position, board.board[self.target.position[X]][self.target.position[Y]])
 
-        if valid and not self.figure.can_skip_figures():
-            moves = self.figure.move_positions(self.target_position)
+        if valid:
+            moves = self.source.move_positions(self.target.position)
 
-            for move in moves[1:-1]:
-                if not isinstance(board.board[move[X]][move[Y]], Blank):
+            for move in moves[1:]:
+                # move is not valid if target is of same team
+                if not isinstance(board.board[move[X]][move[Y]], Blank) and self.source.is_black == self.target.is_black:
                     valid = False
                     break
 

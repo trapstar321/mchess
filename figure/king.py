@@ -14,7 +14,7 @@ class King(Figure):
         else:
             return self.symbol + "W"
 
-    def validate_move(self, new_position):
+    def validate_move(self, new_position, target):
             #one cell forward is ok, also +1/-1 in diagonal
         horizontal_movement = abs(new_position[Y]-self.position[Y])
         vertical_movement = abs(new_position[X] - self.position[X])

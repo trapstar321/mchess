@@ -5,6 +5,7 @@ from figure.blank import Blank
 class MChessGUI:
     def __init__(self, master, board):
         self.master = master
+        self.board = board
         master.title("mchess")
 
         # replace = Button(self.master, text="Replace")
@@ -21,7 +22,6 @@ class MChessGUI:
                         self.gen_button(board.board[x][y], start_background)
                     else:
                         self.gen_button(board.board[x][y], UI_WHITE if start_background == UI_BLACK else UI_BLACK)
-
 
         for col in range(0, 8):
             master.grid_columnconfigure(col, minsize=60, weight=1)
@@ -46,18 +46,14 @@ class MChessGUI:
 
         return button
 
-    def replace_test(self, event):
-        self.replace(self.bishop_white_button, self.bishop_black_button)
-
-    def replace(self, target, source):
-        target.grid(row=source.figure.position[X], column=source.figure.position[Y])
-        source.grid(row=target.figure.position[X], column=target.figure.position[Y])
-
-        source_pos = (source.figure.position[X], source.figure.position[Y])
-        target_pos = (target.figure.position[X], target.figure.position[Y])
-
-        source.figure.position = target_pos
-        target.figure.position = source_pos
+    def move(self, target, source):
+        source_position_before_move = (source.figure.position[X], source.figure.position[Y])
+        target_position_before_move = (target.figure.position[X], target.figure.position[Y])
+        if self.board.move(source.figure, target.figure):
+            target.grid(row=source_position_before_move[X], column=source_position_before_move[Y])
+            source.grid(row=target_position_before_move[X], column=target_position_before_move[Y])
+            return True
+        return False
 
     def on_start(self, event):
         # you could use this method to create a floating window
@@ -75,6 +71,11 @@ class MChessGUI:
 
         source = event.widget
         target = event.widget.winfo_containing(x, y)
-        print(source.cget("text"))
-        print(target.cget("text"))
+
+        target_bg = target.cget("bg")
+        source_bg = source.cget("bg")
+
+        if self.move(target, source):
+            source["bg"] = target_bg
+            target["bg"] = source_bg
 

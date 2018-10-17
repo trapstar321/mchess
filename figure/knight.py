@@ -13,7 +13,7 @@ class Knight(Figure):
         else:
             return self.symbol + "W"
 
-    def validate_move(self, new_position):
+    def validate_move(self, new_position, target):
         #one axis must be 2x and other 1x in difference
         vertical_diff = abs(self.position[X] - new_position[X])
         horizontal_diff = abs(self.position[Y] - new_position[Y])
@@ -30,11 +30,8 @@ class Knight(Figure):
             return -1
 
     def move_positions(self, new_position):
-        #knight does not have move position because he can jump over other figures
-        return None
-
-    def can_skip_figures(self):
-        return True
+        moves = (self.position, new_position)
+        return moves
 
     @classmethod
     def make_instances(cls):

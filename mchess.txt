@@ -65,3 +65,11 @@ knight cells for highlighting
   y1-y2 = 1
   x > > (x se mijenja 2 put)
             (y je isti 2 put)
+
+
+jedenja figura:
+    board - napraviti novi Blank i zamijeniti u dvodim polju
+    gui - napraviti novi blank button i zamijeniti u grid-u sa starim od figure
+          bg je od pojedene figure
+
+    pojedena figura postoji samo u Move objektu ako ima reference na Move objekt
