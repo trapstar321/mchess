@@ -6,6 +6,7 @@ class Blank(Figure):
     def __init__(self, is_black, position):
         super().__init__(is_black, position)
         self.symbol = "  "
+        self.is_blank = True
 
     def __str__(self):
         return self.symbol

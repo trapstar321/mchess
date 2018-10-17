@@ -1,4 +1,3 @@
-#from figure.blank import Blank
 from constants import X, Y
 from PIL import Image, ImageTk
 
@@ -10,6 +9,7 @@ class Figure:
         self.is_black = is_black
         self.position = position
         self.begin_position = position[X], position[Y]
+        self.is_blank = False
 
     def start_position(self):
         pass
@@ -20,16 +20,20 @@ class Figure:
 
     def validate_move(self, board, new_position, target):
         valid = True
-        moves = self.move_positions(self.position)
+        moves = self.move_positions(new_position)
 
-        # for move in moves[1:-1]:
-        #     # move is not valid if target is of same team
-        #     if not isinstance(board.board[move[X]][move[Y]], Blank):
-        #         valid = False
-        #         break
-        #
-        # if not isinstance(target, Blank) and not target.is_black == self.is_black:
-        #     valid = True
+        # cannot jump across other figures
+        for move in moves[1:-1]:
+            if not board.board[move[X]][move[Y]].is_blank:
+                valid = False
+                break
+
+        if valid:
+            # if target is not blank then it must be from other team
+            if not target.is_blank and not target.is_black == self.is_black:
+                valid = True
+            elif not target.is_blank and target.is_black == self.is_black:
+                valid = False
 
         return valid
 
