@@ -73,3 +73,8 @@ jedenja figura:
           bg je od pojedene figure
 
     pojedena figura postoji samo u Move objektu ako ima reference na Move objekt
+
+
+micanje:
+    prebaciti kod u Figure klasu koji provjeri da li figura preskače druge figure
+    + još check da li je target iz drugog tima
