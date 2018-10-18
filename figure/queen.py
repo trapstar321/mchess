@@ -4,15 +4,16 @@ from figure.movement.horizontal import move_positions as move_positions_horizont
 from figure.movement.horizontal import validate_move as validate_move_horizontal
 from figure.movement.vertical import move_positions as move_positions_vertical
 from figure.movement.vertical import validate_move as validate_move_vertical
+from constants import BLACK, WHITE
 
 
 class Queen(Figure):
-    def __init__(self, is_black, position):
-        super().__init__(is_black, position)
+    def __init__(self, side, position):
+        super().__init__(side, position)
         self.symbol = "Q"
 
     def __str__(self):
-        if self.is_black:
+        if self.side == BLACK:
             return self.symbol + "B"
         else:
             return self.symbol + "W"
@@ -40,8 +41,8 @@ class Queen(Figure):
 
     @classmethod
     def make_instances(cls):
-        return [Queen(True, (0, 3)), Queen(False, (7, 3))]
+        return [Queen(BLACK, (0, 3)), Queen(WHITE, (7, 3))]
 
     def icon_path(self):
         return combine_path(Figure.base_icon_path, "queen_black.png") \
-            if self.is_black else combine_path(Figure.base_icon_path, "queen_white.png")
+            if self.side == BLACK else combine_path(Figure.base_icon_path, "queen_white.png")

@@ -1,15 +1,16 @@
 from figure.figure import Figure
 from figure.movement.vertical import *
 from os.path import join as combine_path
+from constants import BLACK, WHITE
 
 
 class Bishop(Figure):
-    def __init__(self, is_black, position):
-        super().__init__(is_black, position)
+    def __init__(self, side, position):
+        super().__init__(side, position)
         self.symbol = "B"
 
     def __str__(self):
-        if self.is_black:
+        if self.side == BLACK:
             return self.symbol + "B"
         else:
             return self.symbol + "W"
@@ -24,8 +25,8 @@ class Bishop(Figure):
 
     @classmethod
     def make_instances(cls):
-        return [Bishop(True, (0, 2)), Bishop(True, (0, 5)), Bishop(False, (7, 2)), Bishop(False, (7, 5))]
+        return [Bishop(BLACK, (0, 2)), Bishop(BLACK, (0, 5)), Bishop(WHITE, (7, 2)), Bishop(WHITE, (7, 5))]
 
     def icon_path(self):
         return combine_path(Figure.base_icon_path, "bishop_black.png") \
-            if self.is_black else combine_path(Figure.base_icon_path, "bishop_white.png")
+            if self.side == BLACK else combine_path(Figure.base_icon_path, "bishop_white.png")

@@ -1,15 +1,16 @@
 from figure.figure import Figure
 from figure.movement.horizontal import *
 from os.path import join as combine_path
+from constants import BLACK, WHITE
 
 
 class Rook(Figure):
-    def __init__(self, is_black, position):
-        super().__init__(is_black, position)
+    def __init__(self, side, position):
+        super().__init__(side, position)
         self.symbol = "R"
 
     def __str__(self):
-        if self.is_black:
+        if self.side == BLACK:
             return self.symbol + "B"
         else:
             return self.symbol + "W"
@@ -25,8 +26,8 @@ class Rook(Figure):
 
     @classmethod
     def make_instances(cls):
-        return [Rook(True, (0, 0)), Rook(True, (0, 7)), Rook(False, (7, 0)), Rook(False, (7, 7))]
+        return [Rook(BLACK, (0, 0)), Rook(BLACK, (0, 7)), Rook(WHITE, (7, 0)), Rook(WHITE, (7, 7))]
 
     def icon_path(self):
         return combine_path(Figure.base_icon_path, "rook_black.png") \
-            if self.is_black else combine_path(Figure.base_icon_path, "rook_white.png")
+            if self.side == BLACK else combine_path(Figure.base_icon_path, "rook_white.png")

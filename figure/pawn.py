@@ -1,22 +1,22 @@
 from figure.figure import Figure
-from constants import X, Y
+from constants import X, Y, BLACK, WHITE
 from os.path import join as combine_path
 from figure.blank import Blank
 
 
 class Pawn(Figure):
-    def __init__(self, is_black, position):
-        super().__init__(is_black, position)
+    def __init__(self, side, position):
+        super().__init__(side, position)
         self.symbol = "P"
 
     def __str__(self):
-        if self.is_black:
+        if self.side == BLACK:
             return self.symbol + "B"
         else:
             return self.symbol + "W"
 
     def allowed_vertical_direction(self):
-        if self.is_black:
+        if self.side == BLACK:
             return 1
         else:
             return -1
@@ -38,18 +38,18 @@ class Pawn(Figure):
             vertical_movement = new_position[X] - self.position[X]
             if horizontal_movement == 0:
                 # black moves from 0 to 7 only if target is blank
-                if self.is_black:
+                if self.side == BLACK:
                     if vertical_movement == 1:
                         valid = False if not isinstance(target, Blank) else True
                     else:
                         valid = False
                 # white moves from 7 to 0 only if target is blank
-                elif not self.is_black:
+                elif self.side == WHITE:
                     if vertical_movement == -1:
                         valid = False if not isinstance(target, Blank) else True
             elif horizontal_movement == 1:
                 if new_position[X] - self.position[X] == self.allowed_vertical_direction()*1:
-                    if not isinstance(target, Blank) and not target.is_black == self.is_black:
+                    if not isinstance(target, Blank) and not target.side == self.side:
                         valid = True
                     else:
                         valid = False
@@ -73,13 +73,13 @@ class Pawn(Figure):
     @classmethod
     def make_instances(cls):
         return [
-            Pawn(True, (1, 0)), Pawn(True, (1, 1)), Pawn(True, (1, 2)), Pawn(True, (1, 3)),
-            Pawn(True, (1, 4)), Pawn(True, (1, 5)), Pawn(True, (1, 6)), Pawn(True, (1, 7)),
+            Pawn(BLACK, (1, 0)), Pawn(BLACK, (1, 1)), Pawn(BLACK, (1, 2)), Pawn(BLACK, (1, 3)),
+            Pawn(BLACK, (1, 4)), Pawn(BLACK, (1, 5)), Pawn(BLACK, (1, 6)), Pawn(BLACK, (1, 7)),
 
-            Pawn(False, (6, 0)), Pawn(False, (6, 1)), Pawn(False, (6, 2)), Pawn(False, (6, 3)),
-            Pawn(False, (6, 4)), Pawn(False, (6, 5)), Pawn(False, (6, 6)), Pawn(False, (6, 7))
+            Pawn(WHITE, (6, 0)), Pawn(WHITE, (6, 1)), Pawn(WHITE, (6, 2)), Pawn(WHITE, (6, 3)),
+            Pawn(WHITE, (6, 4)), Pawn(WHITE, (6, 5)), Pawn(WHITE, (6, 6)), Pawn(WHITE, (6, 7))
         ]
 
     def icon_path(self):
         return combine_path(Figure.base_icon_path, "pawn_black.png") \
-            if self.is_black else combine_path(Figure.base_icon_path, "pawn_white.png")
+            if self.side == BLACK else combine_path(Figure.base_icon_path, "pawn_white.png")

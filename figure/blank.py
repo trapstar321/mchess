@@ -1,10 +1,11 @@
 from figure.figure import Figure
 from os.path import join as combine_path
+from constants import WHITE
 
 
 class Blank(Figure):
-    def __init__(self, is_black, position):
-        super().__init__(is_black, position)
+    def __init__(self, side, position):
+        super().__init__(side, position)
         self.symbol = "  "
         self.is_blank = True
 
@@ -16,7 +17,7 @@ class Blank(Figure):
         instances = []
         for x in range(2, 6):
             for y in range(0, 8):
-                instances.append(Blank(False, (x, y)))
+                instances.append(Blank(WHITE, (x, y)))
         return instances
 
     def icon_path(self):
