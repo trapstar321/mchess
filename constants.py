@@ -3,3 +3,9 @@ Y = 1
 
 UI_BLACK = "#769656"
 UI_WHITE = "#ffffff"
+
+BLACK=1
+WHITE=0
+
+EAT = 1
+SWAP = 0

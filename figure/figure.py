@@ -4,8 +4,8 @@ from PIL import Image, ImageTk
 class Figure:
     base_icon_path = "figure/icons"
 
-    def __init__(self, is_black, position):
-        self.is_black = is_black
+    def __init__(self, side, position):
+        self.side = side
         self.position = position
         self.begin_position = position[X], position[Y]
         self.is_blank = False
@@ -29,9 +29,9 @@ class Figure:
 
         if valid:
             # if target is not blank then it must be from other team
-            if not target.is_blank and not target.is_black == self.is_black:
+            if not target.is_blank and not target.side == self.side:
                 valid = True
-            elif not target.is_blank and target.is_black == self.is_black:
+            elif not target.is_blank and target.side == self.side:
                 valid = False
 
         return valid

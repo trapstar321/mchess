@@ -1,12 +1,13 @@
-from tkinter import Tk, Button
-from constants import X, Y, UI_BLACK, UI_WHITE
+from tkinter import Button
+from constants import X, Y, UI_BLACK, UI_WHITE, SWAP, EAT, WHITE
 from figure.blank import Blank
+
 
 class MChessGUI:
     def __init__(self, master, board):
         self.master = master
         self.board = board
-        master.title("mchess")
+        master.title("mchess - whites turn")
 
         # replace = Button(self.master, text="Replace")
         # replace.grid(row=1, column=1)
@@ -49,11 +50,20 @@ class MChessGUI:
     def move(self, target, source):
         source_position_before_move = (source.figure.position[X], source.figure.position[Y])
         target_position_before_move = (target.figure.position[X], target.figure.position[Y])
-        if self.board.move(source.figure, target.figure):
+
+        result = self.board.move(source.figure, target.figure)
+
+        if result[0] and result[1] == SWAP:
             target.grid(row=source_position_before_move[X], column=source_position_before_move[Y])
             source.grid(row=target_position_before_move[X], column=target_position_before_move[Y])
-            return True
-        return False
+        elif result[0] and result[1] == EAT:
+            target.grid(row=source_position_before_move[X], column=source_position_before_move[Y])
+            source.grid(row=target_position_before_move[X], column=target_position_before_move[Y])
+            self.gen_button(result[2], source["bg"])
+
+        print(self.board)
+
+        return result[0]
 
     def on_start(self, event):
         # you could use this method to create a floating window
@@ -78,4 +88,7 @@ class MChessGUI:
         if self.move(target, source):
             source["bg"] = target_bg
             target["bg"] = source_bg
+
+            self.master.title("mchess - whites turn" if self.board.turn == WHITE else "mchess - blacks turn")
+
 

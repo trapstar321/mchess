@@ -5,7 +5,7 @@ from figure.knight import Knight
 from figure.bishop import Bishop
 from figure.pawn import Pawn
 from figure.blank import Blank
-from constants import X, Y
+from constants import X, Y, WHITE, BLACK, EAT, SWAP
 from move import Move
 
 
@@ -18,9 +18,12 @@ class Board:
 
     def __init__(self):
         self.board = []
+        self.turn = WHITE
 
         for x in range(0, Board.BOARD_LENGTH):
             self.board.append(['']*Board.BOARD_LENGTH)
+
+        self.moves = []
 
         figures = []
         figures.extend(King.make_instances())
@@ -46,26 +49,36 @@ class Board:
         return Board.INVERTED_X_MAPPING[x], Board.INVERTED_Y_MAPPING[y]
 
     def move(self, source, target):
-        m = Move(source, target)
+        m = Move(source, target, self.turn)
+
+        type_ = SWAP
 
         if m.validate(self):
             source_pos = (source.position[X], source.position[Y])
             target_pos = (target.position[X], target.position[Y])
 
-            if not source.is_black == target.is_black:
-                print('Eat target')
+            if not source.side == target.side and not target.is_blank:
+                type_ = EAT
+
+                target = Blank(WHITE, source.position)
+                self.board[source_pos[X]][source_pos[Y]] = target
+                self.board[target_pos[X]][target_pos[Y]] = source
+
+                source.position = target_pos
             else:
-                print('Swap with blank cell')
+                self.board[source_pos[X]][source_pos[Y]] = target
+                self.board[target_pos[X]][target_pos[Y]] = source
 
-            self.board[source.position[X]][source.position[Y]] = target
-            self.board[target.position[X]][target.position[Y]] = source
+                source.position = target_pos
+                target.position = source_pos
 
-            source.position = target_pos
-            target.position = source_pos
+            self.moves.append(m)
 
-            return True
+            self.turn = BLACK if self.turn == WHITE else WHITE
 
-        return False
+            return True, type_, target
+
+        return False, type_, target
 
     def __str__(self):
         result = ""

@@ -1,15 +1,16 @@
 from figure.figure import Figure
 from constants import X, Y
 from os.path import join as combine_path
+from constants import BLACK, WHITE
 
 
 class King(Figure):
-    def __init__(self, is_black, position):
-        super().__init__(is_black, position)
+    def __init__(self, side, position):
+        super().__init__(side, position)
         self.symbol = "K"
 
     def __str__(self):
-        if self.is_black:
+        if self.side == BLACK:
             return self.symbol + "B"
         else:
             return self.symbol + "W"
@@ -37,9 +38,9 @@ class King(Figure):
 
     @classmethod
     def make_instances(cls):
-        return [King(True, (0, 4)), King(False, (7, 4))]
+        return [King(BLACK, (0, 4)), King(WHITE, (7, 4))]
 
     def icon_path(self):
         return combine_path(Figure.base_icon_path, "king_black.png") \
-            if self.is_black else combine_path(Figure.base_icon_path, "king_white.png")
+            if self.side == BLACK else combine_path(Figure.base_icon_path, "king_white.png")
 
