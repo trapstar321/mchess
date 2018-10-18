@@ -78,3 +78,55 @@ jedenja figura:
 micanje:
     prebaciti kod u Figure klasu koji provjeri da li figura preskače druge figure
     + još check da li je target iz drugog tima
+
+
+game objekt - veza između dva klijenta
+            - ima board objekt
+
+message_forwarder -> samo pozove message_processor
+message_processor -> nađe game prema id-ju klijenta
+                     proslijedi message game objektu
+
+poruke:
+    login - neki simple dictionary sa username-ovima za sad
+          - da se može kod rekonekta nastaviti gejm
+
+    connected
+    disconnected - kada se jedan od klijenata diskonektira
+
+    treba popraviti server da kod diskonekta kreira poruku u read_queue (client_id=id od onog koji se diskonektao)
+     da bi message_processor mogao javiti drugom klijentu
+
+    connected i disconnected (ne treba poruka koja ima cijelu listu klijenata)
+        - message processor mora imati listu klijenata
+        - to znači da bi handler mora kreirati connected poruku da dođe do message processora
+        - message processor bi trebao raditi broadcast liste na sve klijente
+        - ako se konektira klijent koji je već u gejmu onda ne treba njega slat u listi
+
+    želiš igrati
+    da / ne
+    create game
+       - kada se dobije ovaj message onda se šalje joined message obojici klijenata
+    move
+    move ok
+    move error
+    swap
+    eat
+    checkmate - gui bi trebao prikazati da je kraj igre
+    stalemate - gui bi trebao prikazati da je kraj igre
+    check     - gui bi trebao prikazati upozorenje
+
+klijent
+    metode za micanje, join itd.
+    gui kreira klijenta i poziva te metode kada korisnik napravi neku akciju
+    ne treba message processor za klijenta, nego će gui čitati read queue direktno
+
+    kada dobije listu klijenata, osvježi prozor sa klijentima ako je prikazan inače ignore
+
+    ima 3 prozora, i svi imaju metodu za procesiranje poruka koja vrati poruke za server kada obradi poruke
+    gui bi trebao proslijediti poruku trenutnom prozoru kada nađe novu poruku
+    metoda za procesiranje bi trebala vratiti da li se prozor zatvara i koji se sljedeći prozor otvara
+
+    1. login
+    2. lista
+    3. board

@@ -1,7 +1,6 @@
 from constants import X, Y
 from PIL import Image, ImageTk
 
-
 class Figure:
     base_icon_path = "figure/icons"
 
