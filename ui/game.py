@@ -3,7 +3,7 @@ from constants import X, Y, UI_BLACK, UI_WHITE, SWAP, EAT, WHITE
 from figure.blank import Blank
 
 
-class MChessGUI:
+class GameUI:
     def __init__(self, master, board):
         self.master = master
         self.board = board

@@ -130,3 +130,9 @@ klijent
     1. login
     2. lista
     3. board
+
+lobby server
+game server
+
+lobby server vrati klijentu kada dogovori gejm na koji gejm server da se spoji
+game server ima samo jedan handler
