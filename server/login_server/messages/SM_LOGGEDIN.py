@@ -7,6 +7,6 @@ class SM_LOGGEDIN(ServerMessage):
     def __init__(self, client_id, username):
         ServerMessage.__init__(self)
 
-        self.put_string(client_id)
+        self.put_object(client_id)
         self.put_string(username)
 

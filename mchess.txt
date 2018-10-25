@@ -136,3 +136,25 @@ game server
 
 lobby server vrati klijentu kada dogovori gejm na koji gejm server da se spoji
 game server ima samo jedan handler
+
+
+broadcast logged in samo onima koji su logged in
+
+kad se logira sakriti login button, dodati disconnect button
+send request button -> SM_GAMEREQUEST (client_id) s kojim se želi igrati
+                                       - šalje na server klijent koji želi pozvati nekog u gem
+                    <- SM_GAMEREQUEST (client_id) client_id = osoba koja šalje request
+                                       - šalji na klijenta kojem se šalje zahtjev
+
+accept/decline request - preko nekog dijaloga
+                       SM_ACCEPT, SM_DECLINE
+
+generirati 1x key na login serveru za novi gejm - ima username od oba klijenta
+                    vratiti svakom useru key
+                    lista servera, odabrati jedan, vratiti klijentima na koji se server moraju spojiti
+
+u message procesoru od gejm servera provjeriti da li su se oba klijenta spojila i startati novi gejm
+                    {user1}{user2}
+                    gejm server mora 2x dobiti taj ključ, kad dobije može kreirati novi gejm
+
+u handler od klijenta postaviti flag na 2 ako dođe do connection errora

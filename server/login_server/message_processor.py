@@ -11,6 +11,7 @@ users = {}
 users['user1'] = {'password': "1234"}
 users['user2'] = {'password': "1234"}
 users['user3'] = {'password': "1234"}
+users['user4'] = {'password': "1234"}
 clients = {}
 logger = Logger(1)
 
@@ -24,8 +25,10 @@ def broadcast_message(sender, message, ignore_sender=False):
         to_send = []
 
         for client in clients_copy.keys():
-            msg = {"id": client, "opcode": message.OP_CODE, "data": message.get_data()}
-            to_send.append(msg)
+            #broadcast only to logged in users
+            if 'username' in clients_copy[client]:
+                msg = {"id": client, "opcode": message.OP_CODE, "data": message.get_data()}
+                to_send.append(msg)
 
         if len(to_send)>0:
             logger.log("Broadcast message {0}".format(message))
@@ -77,7 +80,7 @@ def process_messages(messages, client_id):
                     smessages.append({"id": message["id"], "opcode": ret_msg.OP_CODE, "data": ret_msg.get_data()})
 
                     # if user logged in successfully broadcast to all clients
-                    return_msg = SM_LOGGEDIN(str(message["id"]), msg.username)
+                    return_msg = SM_LOGGEDIN(message["id"], msg.username)
                     to_send = broadcast_message(message["id"], return_msg, True)
                     for msg in to_send:
                         smessages.append(msg)
@@ -99,7 +102,7 @@ def process_messages(messages, client_id):
             #logger.log(clients)
 
         for msg in smessages:
-            print("Send message {0}".format(msg))
+            logger.log("Send message {0}".format(msg))
 
         return smessages
     except Exception as ex:
