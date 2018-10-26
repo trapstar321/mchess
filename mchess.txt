@@ -158,3 +158,10 @@ u message procesoru od gejm servera provjeriti da li su se oba klijenta spojila 
                     gejm server mora 2x dobiti taj ključ, kad dobije može kreirati novi gejm
 
 u handler od klijenta postaviti flag na 2 ako dođe do connection errora
+
+kontrola da se request ne može poslati više puta na istog klijenta
+
+disconnected - ukloniti sve request-a za tog klijenta na serveru
+             - ukloniti sa klijenta request od diskonetanog klijenta i request poslan na tog klijenta
+
+implementirati accept, reject i cancel

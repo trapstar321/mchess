@@ -6,6 +6,9 @@ from server.login_server.messages.CM_LOGIN import CM_LOGIN
 from server.login_server.messages.SM_WELCOME import SM_WELCOME
 from server.login_server.messages.SM_LOGINFAILED import SM_LOGINFAILED
 from server.login_server.messages.SM_LOGGEDIN import SM_LOGGEDIN
+from server.login_server.messages.CM_GAMEREQUEST import CM_GAMEREQUEST
+from server.login_server.messages.SM_GAMEREQUEST import SM_GAMEREQUEST
+import uuid
 
 users = {}
 users['user1'] = {'password': "1234"}
@@ -98,6 +101,19 @@ def process_messages(messages, client_id):
                 to_send = broadcast_message(message["id"], return_msg, True)
                 for msg in to_send:
                     smessages.append(msg)
+            elif message["opcode"] == CM_GAMEREQUEST.OP_CODE:
+                msg = CM_GAMEREQUEST(message["data"])
+                logger.log("Game request to {0} from {1}".format(msg.client, message["id"]))
+                request_id = uuid.uuid1()
+
+                src_name = clients[message["id"]]["username"]
+                dest_name = clients[msg.client]["username"]
+
+                destination_msg = SM_GAMEREQUEST(request_id, message["id"], src_name, 0)
+                source_msg = SM_GAMEREQUEST(request_id, msg.client, dest_name, 1)
+
+                smessages.append({"id": msg.client, "opcode": destination_msg.OP_CODE, "data": destination_msg.get_data()})
+                smessages.append({"id": message["id"], "opcode": source_msg.OP_CODE, "data": source_msg.get_data()})
 
             #logger.log(clients)
 

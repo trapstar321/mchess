@@ -7,5 +7,8 @@ class User:
     def set_index(self, index):
         self.index = index
 
+    def get_key(self):
+        return self.client_id
+
     def __str__(self):
         return self.username
