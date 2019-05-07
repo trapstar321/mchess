@@ -149,14 +149,6 @@ send request button -> SM_GAMEREQUEST (client_id) s kojim se želi igrati
 accept/decline request - preko nekog dijaloga
                        SM_ACCEPT, SM_DECLINE
 
-generirati 1x key na login serveru za novi gejm - ima username od oba klijenta
-                    vratiti svakom useru key
-                    lista servera, odabrati jedan, vratiti klijentima na koji se server moraju spojiti
-
-u message procesoru od gejm servera provjeriti da li su se oba klijenta spojila i startati novi gejm
-                    {user1}{user2}
-                    gejm server mora 2x dobiti taj ključ, kad dobije može kreirati novi gejm
-
 u handler od klijenta postaviti flag na 2 ako dođe do connection errora
 
 kontrola da se request ne može poslati više puta na istog klijenta
@@ -165,3 +157,19 @@ disconnected - ukloniti sve request-a za tog klijenta na serveru
              - ukloniti sa klijenta request od diskonetanog klijenta i request poslan na tog klijenta
 
 implementirati accept, reject i cancel
+
+accept implementirati
+
+označavanje canceled i rejected request-ova
+
+generirati 1x key na login serveru za novi gejm - ima username od oba klijenta
+                    vratiti svakom useru key
+                    lista servera, odabrati jedan, vratiti klijentima na koji se server moraju spojiti
+
+kada se otkaže request, disconnecta klijent disablati buttonse koji se ne bi smjeli moći kliknut
+
+kad se accepta request, sender dobije poruku da li želi igrati
+
+u message procesoru od gejm servera provjeriti da li su se oba klijenta spojila i startati novi gejm
+                    {user1}{user2}
+                    gejm server mora 2x dobiti taj ključ, kad dobije može kreirati novi gejm

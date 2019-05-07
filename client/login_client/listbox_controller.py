@@ -6,8 +6,8 @@ class ListBoxController:
         self.data = data
         self.listbox = listbox
 
-    def clear(self):
-        self.data = {}
+    def clear(self, data):
+        self.data = data
         self.listbox.delete(0, END)
 
     def get_selected(self):

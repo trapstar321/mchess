@@ -1,0 +1,22 @@
+{
+  "login_server": {
+    "ip": "127.0.0.1",
+    "tcp_port": 10000,
+    "udp_port": 4999,
+    "nHandlers": 1,
+    "debug": false,
+    "game_servers": [
+      {
+        "id": 1,
+        "ip": "127.0.0.1",
+        "port": 10001
+      },
+      {
+        "id": 2,
+        "ip": "127.0.0.1",
+        "port": 10002
+      }
+    ],
+    "aes_key": "7D6D7B4819EBB69DA514CFF9EA4E9XZT"
+  }
+}

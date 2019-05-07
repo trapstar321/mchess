@@ -1,5 +1,5 @@
 from tkinter import Tk
-from ui.lobby import LobbyUI
+from ui.lobby.lobby import LobbyUI
 
 
 

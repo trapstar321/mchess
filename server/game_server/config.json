@@ -1,0 +1,8 @@
+{
+  "ip": "127.0.0.1",
+  "tcp_port": 10001,
+  "udp_port": 50000,
+  "nHandlers": 1,
+  "debug": false,
+  "aes_key": "7D6D7B4819EBB69DA514CFF9EA4E9XZT"
+}
