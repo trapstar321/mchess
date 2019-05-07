@@ -3,10 +3,12 @@ from constants import X, Y, UI_BLACK, UI_WHITE, SWAP, EAT, WHITE, BLACK
 from ui.game.figure.blank import Blank
 from client.game_client.messages.CM_MOVE import CM_MOVE
 from client.game_client.messages.CM_GAMEKEY import CM_GAMEKEY
+from client.game_client.messages.CM_QUIT import CM_QUIT
 from client.game_client.messages.SM_MOVEOK import SM_MOVEOK
 from client.game_client.messages.SM_MOVEERROR import SM_MOVEERROR
 from client.game_client.messages.SM_STARTGAME import SM_STARTGAME
 from client.game_client.messages.SM_TURN import SM_TURN
+from client.game_client.messages.SM_QUIT import SM_QUIT
 
 import queue
 import socket
@@ -17,9 +19,10 @@ from ui.game.board import Board
 
 import time
 import threading
+import traceback
 
 class GameUI:
-    def __init__(self, master, sm_gamekey, udp_port):
+    def __init__(self, master, sm_gamekey, udp_port, status_callback):
         self.master = master
         self.board = Board()
         self.sm_gamekey = sm_gamekey
@@ -28,11 +31,14 @@ class GameUI:
         self.client = None
         self.tick_rate = 0.2
         self.buttons = []
+        self.exit_tick = False
+        self.status_callback = status_callback
 
         self.start_game()
 
     def create(self):
         self.master = Toplevel(self.master)
+        self.master.protocol("WM_DELETE_WINDOW", self.on_closing)
         self.master.title("mchess - {0} turn".format("your" if self.is_white else "whites"))
 
         for x in range(0, 8):
@@ -75,7 +81,7 @@ class GameUI:
 
     def get_button(self, pos):
         for button in self.buttons:
-            if button.position[X]==pos[X] and button.position[Y]==pos[Y]:
+            if button.figure.position[X]==pos[X] and button.figure.position[Y]==pos[Y]:
                 return button
 
     def move(self, target, source):
@@ -113,10 +119,7 @@ class GameUI:
         source = event.widget
         target = event.widget.winfo_containing(x, y)
 
-        target_bg = target.cget("bg")
-        source_bg = source.cget("bg")
-
-        msg = CM_MOVE(self.sm_gamekey.key, target.position, source.position)
+        msg = CM_MOVE(self.sm_gamekey.key, target.figure.position, source.figure.position)
         self.send_messages([{"opcode": type(msg).OP_CODE, "data": msg.get_data()}])
 
     def setup(self, state):
@@ -140,9 +143,17 @@ class GameUI:
                 button.unbind("<B1-Motion>")
                 button.unbind("<ButtonRelease-1>")
 
+    def on_closing(self):
+        if messagebox.askokcancel(parent=self.master, title="Quit", message="Do you want to quit?"):
+            msg = CM_QUIT(self.sm_gamekey.key)
+            self.send_messages([{"opcode": type(msg).OP_CODE, "data": msg.get_data()}])
+
+            self.disconnect()
+            self.master.destroy()
 
     def start_game(self):
         try:
+            self.exit_tick = False
             c = Client((self.sm_gamekey.ip, self.sm_gamekey.port), self.udp_port, False, None, None)
             c.start()
             self.client = c
@@ -152,20 +163,29 @@ class GameUI:
 
             #self.master.after(self.tick_rate, self.tick)
             t = threading.Thread(target=self.tick)
+            t.daemon = True
             t.start()
+
+            self.status_callback.in_game()
         except ConnectionRefusedError:
-            messagebox.showerror("Connection failed", "Failed to connect to server")
+            self.status_callback.available()
+            messagebox.showerror("Connection failed", "Failed to connect to game server")
 
     def disconnect(self):
+        self.exit_tick = True
         self.client.shutdown()
         self.client = None
+        self.status_callback.available()
 
     def tick(self):
         while True:
+            if self.exit_tick:
+                return
+
             if self.client is not None:
                 status = self.client.status()
                 if status == 3 or status == 4:
-                    messagebox.showerror("Connection error", "Disconnected from server")
+                    messagebox.showerror("Connection error", "Disconnected from game server")
                     self.disconnect()
             else:
                 return
@@ -194,7 +214,6 @@ class GameUI:
             smessages = []
             for message in messages:
                 self.logger.log("Processor received message: {0}".format(message))
-
                 if message["opcode"] == SM_STARTGAME.OP_CODE:
                     msg = SM_STARTGAME(message["data"])
                     self.logger.log("Start game. Am {0}".format("white" if msg.is_white else "black"))
@@ -203,8 +222,14 @@ class GameUI:
                 elif message["opcode"] == SM_MOVEOK.OP_CODE:
                     msg = SM_MOVEOK(message["data"])
 
+                    self.logger.log("Source: {0}".format(msg.source))
+                    self.logger.log("Target: {0}".format(msg.target))
+
                     source = self.get_button(msg.source)
                     target = self.get_button(msg.target)
+
+                    self.logger.log("Source {0}: {1}".format(source.figure, source.figure.position))
+                    self.logger.log("Target: {0}: {1}".format(target.figure, target.figure.position))
 
                     target_bg = target.cget("bg")
                     source_bg = source.cget("bg")
@@ -212,6 +237,10 @@ class GameUI:
                     if self.move(target, source):
                         source["bg"] = target_bg
                         target["bg"] = source_bg
+
+                    print(self.board)
+                    self.logger.log("Source {0}: {1}".format(source.figure, source.figure.position))
+                    self.logger.log("Target: {0}: {1}".format(target.figure, target.figure.position))
                 elif message["opcode"] == SM_MOVEERROR.OP_CODE:
                     pass
                 elif message["opcode"] == SM_TURN.OP_CODE:
@@ -224,10 +253,15 @@ class GameUI:
                     else:
                         self.setup(DISABLED)
                         self.master.title("mchess - blacks turn" if self.is_white else "mchess - whites turn")
+                elif message["opcode"] == SM_QUIT.OP_CODE:
+                    messagebox.showinfo(parent=self.master, title="Game over", message="Opponent forfeited!")
+                    self.disconnect()
+                    self.master.destroy()
 
             return smessages
         except Exception as ex:
             self.logger.log('process_messages exception: {0}'.format(ex))
+            traceback.print_tb(ex.__traceback__)
 
     def send_messages(self, messages):
         self.client.handler.write_queue.put(messages)

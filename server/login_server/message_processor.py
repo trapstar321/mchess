@@ -7,6 +7,7 @@ from server.login_server.messages.SM_WELCOME import SM_WELCOME
 from server.login_server.messages.SM_LOGINFAILED import SM_LOGINFAILED
 from server.login_server.messages.SM_LOGGEDIN import SM_LOGGEDIN
 from server.login_server.messages.CM_GAMEREQUEST import CM_GAMEREQUEST
+from server.login_server.messages.CM_USERSTATUS import CM_USERSTATUS
 from server.login_server.messages.SM_GAMEREQUEST import SM_GAMEREQUEST
 from server.login_server.messages.SM_GAMEREQUESTERROR import SM_GAMEREQUESTERROR
 from server.login_server.messages.CM_ACCEPTGAMEREQUEST import CM_ACCEPTGAMEREQUEST
@@ -15,6 +16,8 @@ from server.login_server.messages.CM_CANCELGAMEREQUEST import CM_CANCELGAMEREQUE
 from server.login_server.messages.SM_CANCELGAMEREQUEST import SM_CANCELGAMEREQUEST
 from server.login_server.messages.SM_REJECTGAMEREQUEST import SM_REJECTGAMEREQUEST
 from server.login_server.messages.SM_GAMEKEY import SM_GAMEKEY
+from server.login_server.messages.SM_USERSTATUS import SM_USERSTATUS
+
 import uuid
 import json
 from utils.aes import encrypt, to_hex
@@ -241,7 +244,14 @@ def process_messages(messages, conf, client_id):
                 msg = SM_GAMEKEY(ip, port, key)
                 smessages.append({"id": dest, "opcode": msg.OP_CODE, "data": msg.get_data()})
                 smessages.append({"id": src, "opcode": msg.OP_CODE, "data": msg.get_data()})
+            elif message["opcode"] == CM_USERSTATUS.OP_CODE:
+                msg = CM_USERSTATUS(message["data"])
+                logger.log("Client {0} status = {1}".format(message["id"], "in game" if msg.status == 1 else "available"))
 
+                return_msg = SM_USERSTATUS(message["id"], msg.status)
+                to_send = broadcast_message(message["id"], return_msg, True)
+                for msg in to_send:
+                    smessages.append(msg)
             #logger.log(clients)
 
         for msg in smessages:

@@ -51,6 +51,8 @@ class Board:
     def move(self, source, target):
         m = Move(source, target, self.turn)
 
+        print("Move: {0}->{1}".format(source.position, target.position))
+
         type_ = SWAP
 
         if m.validate(self):

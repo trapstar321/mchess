@@ -8,6 +8,7 @@ from client.login_client.messages.SM_WELCOME import SM_WELCOME
 from client.login_client.messages.SM_LOGINFAILED import SM_LOGINFAILED
 from client.login_client.messages.SM_LOGGEDIN import SM_LOGGEDIN
 from client.login_client.messages.CM_GAMEREQUEST import CM_GAMEREQUEST
+from client.login_client.messages.CM_USERSTATUS import CM_USERSTATUS
 from client.login_client.messages.SM_GAMEREQUEST import SM_GAMEREQUEST
 from client.login_client.messages.SM_GAMEREQUESTERROR import SM_GAMEREQUESTERROR
 from client.login_client.messages.SM_CANCELGAMEREQUEST import SM_CANCELGAMEREQUEST
@@ -16,6 +17,7 @@ from client.login_client.messages.CM_ACCEPTGAMEREQUEST import CM_ACCEPTGAMEREQUE
 from client.login_client.messages.CM_REJECTGAMEREQUEST import CM_REJECTGAMEREQUEST
 from client.login_client.messages.CM_CANCELGAMEREQUEST import CM_CANCELGAMEREQUEST
 from client.login_client.messages.SM_GAMEKEY import SM_GAMEKEY
+from client.login_client.messages.SM_USERSTATUS import SM_USERSTATUS
 
 import socket
 import queue
@@ -31,6 +33,21 @@ import threading
 import time
 from random import randint
 
+class StatusCallback:
+    def __init__(self, logger, send_messages):
+        self.logger = logger
+        self.send_messages = send_messages
+
+    def in_game(self):
+        self.logger.log("Status: in game")
+        msg = CM_USERSTATUS(1)
+        self.send_messages([{"opcode": type(msg).OP_CODE, "data": msg.get_data()}])
+
+    def available(self):
+        self.logger.log("Status: available")
+        msg = CM_USERSTATUS(0)
+        self.send_messages([{"opcode": type(msg).OP_CODE, "data": msg.get_data()}])
+
 class LobbyUI:
     def __init__(self, master, tick_rate, username_, password_, udp_port):
         self.tick_rate = tick_rate
@@ -40,6 +57,7 @@ class LobbyUI:
         self.udp_port = udp_port
         self.clients = {}
         self.requests = {}
+        self.exit_tick = False
 
         group_usersonline = LabelFrame(master, text="Users online", padx=5, pady=5)
         group_usersonline.grid(row=0, column=0)
@@ -103,6 +121,7 @@ class LobbyUI:
 
     def login(self):
         try:
+            self.exit_tick = False
             c = Client(("127.0.0.1", 10000), self.udp_port, False, None, None)
             c.start()
             self.client = c
@@ -117,11 +136,13 @@ class LobbyUI:
 
             #self.master.after(self.tick_rate, self.tick)
             t = threading.Thread(target=self.tick)
+            t.daemon=True
             t.start()
         except ConnectionRefusedError:
             messagebox.showerror("Connection failed", "Failed to connect to server")
 
     def disconnect(self):
+        self.exit_tick = True
         self.client.shutdown()
         self.client = None
         self.disconnect_button.grid_forget()
@@ -234,6 +255,9 @@ class LobbyUI:
 
     def tick(self):
         while True:
+            if self.exit_tick:
+                return
+
             if self.client is not None:
                 status = self.client.status()
                 if status == 3 or status == 4:
@@ -311,8 +335,11 @@ class LobbyUI:
                     self.canceled_rejected()
                 elif message["opcode"] == SM_GAMEKEY.OP_CODE:
                     msg = SM_GAMEKEY(message["data"])
-                    GameUI(self.master, msg, randint(50000, 51000))
+                    GameUI(self.master, msg, randint(50000, 51000), StatusCallback(self.logger, self.send_messages))
                     self.logger.log("Game request key={0}, game server ip={1}, port={2}".format(msg.key, msg.ip, msg.port))
+                elif message["opcode"] == SM_USERSTATUS.OP_CODE:
+                    msg = SM_USERSTATUS(message["data"])
+                    self.logger.log("Client {0} status = {1}".format(msg.idx, "in game" if msg.status == 1 else "available"))
 
             return smessages
         except Exception as ex:

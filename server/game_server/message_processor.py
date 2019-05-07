@@ -2,12 +2,14 @@ from NIO_python.common.log_optional import Logger
 from server.game_server.messages.CM_GAMEKEY import CM_GAMEKEY
 from server.game_server.messages.CM_MOVE import CM_MOVE
 from server.game_server.messages.SM_STARTGAME import SM_STARTGAME
+from server.game_server.messages.CM_QUIT import CM_QUIT
 from server.game_server.messages.SM_MOVEOK import SM_MOVEOK
 from server.game_server.messages.SM_MOVEERROR import SM_MOVEERROR
 from server.game_server.messages.SM_TURN import SM_TURN
-
+from server.game_server.messages.SM_QUIT import SM_QUIT
 from NIO_python.server.messages.SM_CONNECTED import SM_CONNECTED
 from NIO_python.server.messages.SM_DISCONNECTED import SM_DISCONNECTED
+
 from utils.aes import decrypt, from_hex
 
 from random import randint
@@ -40,6 +42,19 @@ def process_messages(messages, conf, client_id):
 
             if message["opcode"] == SM_CONNECTED.OP_CODE:
                 clients[message["id"]] = {}
+            elif message["opcode"] == SM_DISCONNECTED.OP_CODE:
+                logger.log("Client {0} disconnected".format(message["id"]))
+            elif message["opcode"] == CM_QUIT.OP_CODE:
+                msg = CM_QUIT(message["data"])
+                game = games[msg.key]
+
+                ret = SM_QUIT(msg.key)
+                if message["id"] == game.player1.id:
+                    smessages.append({"id": game.player2.id, "opcode": ret.OP_CODE, "data": ret.get_data()})
+                else:
+                    smessages.append({"id": game.player1.id, "opcode": ret.OP_CODE, "data": ret.get_data()})
+
+                del games[msg.key]
             elif message["opcode"] == CM_GAMEKEY.OP_CODE:
                 msg = CM_GAMEKEY(message["data"])
 

@@ -1,4 +1,4 @@
-from ui.game.game.board import Board
+from ui.game.board import Board
 from tkinter import Tk
 from ui.game.game import GameUI
 
