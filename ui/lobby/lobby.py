@@ -32,19 +32,23 @@ from ui.game.game import GameUI
 import threading
 import time
 from random import randint
+import traceback
 
 class StatusCallback:
     def __init__(self, logger, send_messages):
         self.logger = logger
         self.send_messages = send_messages
+        self.status = 0
 
     def in_game(self):
         self.logger.log("Status: in game")
+        self.status = 1
         msg = CM_USERSTATUS(1)
         self.send_messages([{"opcode": type(msg).OP_CODE, "data": msg.get_data()}])
 
     def available(self):
         self.logger.log("Status: available")
+        self.status = 0
         msg = CM_USERSTATUS(0)
         self.send_messages([{"opcode": type(msg).OP_CODE, "data": msg.get_data()}])
 
@@ -58,6 +62,7 @@ class LobbyUI:
         self.clients = {}
         self.requests = {}
         self.exit_tick = False
+        self.scb = StatusCallback(self.logger, self.send_messages)
 
         group_usersonline = LabelFrame(master, text="Users online", padx=5, pady=5)
         group_usersonline.grid(row=0, column=0)
@@ -183,7 +188,7 @@ class LobbyUI:
 
     def onselect_user(self, event):
         user = self.usersonline_controller.get_selected()
-        if user is not None:
+        if user is not None and user.status == 0 and self.scb.status == 0:
             self.send_request_button.configure(state=NORMAL)
         else:
             self.send_request_button.configure(state=DISABLED)
@@ -215,7 +220,7 @@ class LobbyUI:
 
     def add_multiple_users(self, users):
         for client_id in users.keys():
-            self.add_user(User(client_id, users[client_id]['username']))
+            self.add_user(User(client_id, users[client_id]['username'], users[client_id]['status']))
 
     def delete_user(self, client_id):
         self.usersonline_controller.delete(client_id)
@@ -312,7 +317,7 @@ class LobbyUI:
                 elif message["opcode"] == SM_LOGGEDIN.OP_CODE:
                     msg = SM_LOGGEDIN(message["data"])
                     self.logger.log("User {0} logged in".format(msg.username))
-                    self.add_user(User(msg.client_id, msg.username))
+                    self.add_user(User(msg.client_id, msg.username, 0))
                 elif message["opcode"] == SM_GAMEREQUEST.OP_CODE:
                     msg = SM_GAMEREQUEST(message["data"])
 
@@ -335,15 +340,20 @@ class LobbyUI:
                     self.canceled_rejected()
                 elif message["opcode"] == SM_GAMEKEY.OP_CODE:
                     msg = SM_GAMEKEY(message["data"])
-                    GameUI(self.master, msg, randint(50000, 51000), StatusCallback(self.logger, self.send_messages))
+                    GameUI(self.master, msg, randint(50000, 51000), self.scb)
                     self.logger.log("Game request key={0}, game server ip={1}, port={2}".format(msg.key, msg.ip, msg.port))
+                    #self.delete_request(msg.request_id)
                 elif message["opcode"] == SM_USERSTATUS.OP_CODE:
                     msg = SM_USERSTATUS(message["data"])
                     self.logger.log("Client {0} status = {1}".format(msg.idx, "in game" if msg.status == 1 else "available"))
+                    self.usersonline_controller.get(msg.idx).set_status(msg.status)
+                    self.usersonline_listbox.update()
+                    self.usersonline_controller.refresh(msg.idx)
 
             return smessages
         except Exception as ex:
             self.logger.log('process_messages exception: {0}'.format(ex))
+            traceback.print_tb(ex.__traceback__)
 
     def send_messages(self, messages):
         self.client.handler.write_queue.put(messages)

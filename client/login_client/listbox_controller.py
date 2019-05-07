@@ -34,4 +34,12 @@ class ListBoxController:
             self.data[key_].index = self.listbox.get(0, "end").index(
                 str(self.data[key_]))
 
+    def get(self, key_):
+        return self.data[key_]
+
+    def refresh(self, key_):
+        self.listbox.delete(self.data[key_].index)
+        self.listbox.insert(self.data[key_].index, self.data[key_])
+
+
 

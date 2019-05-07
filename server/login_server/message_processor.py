@@ -23,6 +23,7 @@ import json
 from utils.aes import encrypt, to_hex
 
 from models.server.gamerequest import GameRequest
+import traceback
 
 users = {}
 users['user1'] = {'password': "1234"}
@@ -152,7 +153,7 @@ def process_messages(messages, conf, client_id):
                 msg = CM_LOGIN(message["data"])
 
                 if msg.username in users and users[msg.username]["password"] == msg.password:
-                    clients[message["id"]] = {"username": msg.username}
+                    clients[message["id"]] = {"username": msg.username, "status": 0}
                     logger.log("User={0}, login successfull".format(msg.username))
                     ret_msg = SM_WELCOME("Welcome")
                     smessages.append({"id": message["id"], "opcode": ret_msg.OP_CODE, "data": ret_msg.get_data()})
@@ -244,8 +245,15 @@ def process_messages(messages, conf, client_id):
                 msg = SM_GAMEKEY(ip, port, key)
                 smessages.append({"id": dest, "opcode": msg.OP_CODE, "data": msg.get_data()})
                 smessages.append({"id": src, "opcode": msg.OP_CODE, "data": msg.get_data()})
+
+                msg = SM_CANCELGAMEREQUEST(request_id)
+                smessages.append({"id": dest, "opcode": msg.OP_CODE, "data": msg.get_data()})
+                smessages.append({"id": src, "opcode": msg.OP_CODE, "data": msg.get_data()})
+
+                delete_request(request_id)
             elif message["opcode"] == CM_USERSTATUS.OP_CODE:
                 msg = CM_USERSTATUS(message["data"])
+                clients[message["id"]]["status"] = msg.status
                 logger.log("Client {0} status = {1}".format(message["id"], "in game" if msg.status == 1 else "available"))
 
                 return_msg = SM_USERSTATUS(message["id"], msg.status)
@@ -260,3 +268,4 @@ def process_messages(messages, conf, client_id):
         return smessages
     except Exception as ex:
         logger.log('process_messages exception: {0}'.format(ex))
+        traceback.print_tb(ex.__traceback__)
