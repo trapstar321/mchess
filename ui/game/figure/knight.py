@@ -41,6 +41,9 @@ class Knight(Figure):
         moves = (self.position, new_position)
         return moves
 
+    def short_name(self):
+        return "k"
+
     @classmethod
     def make_instances(cls):
         return [Knight(BLACK, (0, 1)), Knight(BLACK, (0, 6)), Knight(WHITE, (7, 1)), Knight(WHITE, (7, 6))]

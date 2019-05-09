@@ -24,6 +24,9 @@ class Rook(Figure):
     def move_positions(self, new_position):
         return move_positions(self.position, new_position)
 
+    def short_name(self):
+        return "R"
+
     @classmethod
     def make_instances(cls):
         return [Rook(BLACK, (0, 0)), Rook(BLACK, (0, 7)), Rook(WHITE, (7, 0)), Rook(WHITE, (7, 7))]

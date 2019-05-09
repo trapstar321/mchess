@@ -70,6 +70,9 @@ class Pawn(Figure):
         moves.append(new_position)
         return tuple(moves)
 
+    def short_name(self):
+        return "P"
+
     @classmethod
     def make_instances(cls):
         return [

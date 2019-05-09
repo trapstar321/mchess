@@ -1,4 +1,4 @@
-from tkinter import Button, messagebox, Toplevel, DISABLED, NORMAL
+from tkinter import Button, messagebox, Toplevel, DISABLED, NORMAL, Listbox, N, S
 from constants import X, Y, UI_BLACK, UI_WHITE, SWAP, EAT, WHITE, BLACK
 from ui.game.figure.blank import Blank
 from client.game_client.messages.CM_MOVE import CM_MOVE
@@ -9,6 +9,7 @@ from client.game_client.messages.SM_MOVEERROR import SM_MOVEERROR
 from client.game_client.messages.SM_STARTGAME import SM_STARTGAME
 from client.game_client.messages.SM_TURN import SM_TURN
 from client.game_client.messages.SM_QUIT import SM_QUIT
+from client.game_client.messages.SM_ROUNDINFO import SM_ROUNDINFO
 
 import queue
 import socket
@@ -20,6 +21,23 @@ from ui.game.board import Board
 import time
 import threading
 import traceback
+
+from ui.listbox_controller import ListBoxController
+
+class Log:
+    def __init__(self, round, description):
+        self.round = round
+        self.description = description
+        self.index = None
+
+    def set_index(self, index):
+        self.index = index
+
+    def get_key(self):
+        return self.round
+
+    def __str__(self):
+        return self.description
 
 class GameUI:
     def __init__(self, master, sm_gamekey, udp_port, status_callback):
@@ -33,6 +51,8 @@ class GameUI:
         self.buttons = []
         self.exit_tick = False
         self.status_callback = status_callback
+
+        self.log = {}
 
         self.start_game()
 
@@ -57,6 +77,11 @@ class GameUI:
 
         for row in range(0, 8):
             self.master.grid_rowconfigure(row, minsize=60, weight=1)
+
+        self.log_listbox = Listbox(self.master, height=6, width=20)
+        self.log_listbox.grid(row=0, column=9, rowspan=8, sticky=N + S)
+
+        self.log_controller = ListBoxController(self.log, self.log_listbox)
 
         self.setup(NORMAL if self.is_white else DISABLED)
 
@@ -83,6 +108,14 @@ class GameUI:
         for button in self.buttons:
             if button.figure.position[X]==pos[X] and button.figure.position[Y]==pos[Y]:
                 return button
+
+    def add_log(self, log):
+        if log.get_key() in self.log:
+            log.set_index(self.log[log.get_key()].index)
+            self.log[log.get_key()] = log
+            self.log_controller.refresh(log.get_key())
+        else:
+            self.log_controller.add(log)
 
     def move(self, target, source):
         source_position_before_move = (source.figure.position[X], source.figure.position[Y])
@@ -257,6 +290,10 @@ class GameUI:
                     messagebox.showinfo(parent=self.master, title="Game over", message="Opponent forfeited!")
                     self.disconnect()
                     self.master.destroy()
+                elif message["opcode"] == SM_ROUNDINFO.OP_CODE:
+                    msg = SM_ROUNDINFO(message["data"])
+                    self.logger.log("Round: {0}".format(msg.description))
+                    self.add_log(Log(msg.round, msg.description))
 
             return smessages
         except Exception as ex:

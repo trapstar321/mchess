@@ -39,6 +39,9 @@ class Queen(Figure):
         if horizontal_valid:
             return move_positions_horizontal(self.position, new_position)
 
+    def short_name(self):
+        return "Q"
+
     @classmethod
     def make_instances(cls):
         return [Queen(BLACK, (0, 3)), Queen(WHITE, (7, 3))]

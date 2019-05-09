@@ -21,7 +21,7 @@ from client.login_client.messages.SM_USERSTATUS import SM_USERSTATUS
 
 import socket
 import queue
-from client.login_client.listbox_controller import ListBoxController
+from ui.listbox_controller import ListBoxController
 
 from NIO_python.common.log_optional import Logger
 from models.user import User

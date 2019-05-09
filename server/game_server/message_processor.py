@@ -7,14 +7,16 @@ from server.game_server.messages.SM_MOVEOK import SM_MOVEOK
 from server.game_server.messages.SM_MOVEERROR import SM_MOVEERROR
 from server.game_server.messages.SM_TURN import SM_TURN
 from server.game_server.messages.SM_QUIT import SM_QUIT
+from server.game_server.messages.SM_ROUNDINFO import SM_ROUNDINFO
 from NIO_python.server.messages.SM_CONNECTED import SM_CONNECTED
 from NIO_python.server.messages.SM_DISCONNECTED import SM_DISCONNECTED
 
 from utils.aes import decrypt, from_hex
 
 from random import randint
-from constants import X, Y, WHITE, BLACK
+from constants import X, Y, WHITE, BLACK, EAT
 import traceback
+import math
 
 logger = Logger(1)
 clients = {}
@@ -23,11 +25,56 @@ games = {}
 
 from ui.game.board import Board
 
+class Round:
+    def __init__(self, round):
+        self.round = round
+        self.figure1 = None
+        self.figure2 = None
+
+        self.result1 = None
+        self.result2 = None
+
+    def move(self, figure, result):
+        if self.figure1 is None:
+            self.figure1 = figure
+            self.result1 = result
+        else:
+            self.figure2 = figure
+            self.result2 = result
+
+    def __str__(self):
+        pos1 = Board.position_to_cell(self.figure1.position[X], self.figure1.position[Y])
+        pos1_str = self.figure1.short_name()+("x" if self.result1 == EAT else "")+pos1[0] + str(pos1[1])
+
+        pos2_str = ""
+        if self.figure2 is not None:
+            pos2 = Board.position_to_cell(self.figure2.position[X], self.figure2.position[Y])
+            pos2_str = self.figure2.short_name()+("x" if self.result2 == EAT else "")+pos2[0] + str(pos2[1])
+
+        return "{0}  {1} {2}".format(self.round, pos1_str, pos2_str)
+
 class Game:
     def __init__(self, board, player1, player2):
         self.board = board
         self.player1 = player1
         self.player2 = player2
+
+        self.move_ = 0
+        self.round = 0
+
+        self.rounds = {}
+
+    def move(self, source, result):
+        self.move_ += 1
+        self.round = math.ceil(self.move_/2)
+
+        if self.round not in self.rounds:
+            self.rounds[self.round] = Round(self.round)
+
+        round = self.rounds[self.round]
+        round.move(source, result)
+
+        return round
 
 class Player:
     def __init__(self, id, side):
@@ -96,6 +143,13 @@ def process_messages(messages, conf, client_id):
                 logger.log("Move response = {0}".format(ret))
                 if ret[0]:
                     msg = SM_MOVEOK(msg.source, msg.target)
+                    smessages.append({"id": game.player1.id, "opcode": msg.OP_CODE, "data": msg.get_data()})
+                    smessages.append({"id": game.player2.id, "opcode": msg.OP_CODE, "data": msg.get_data()})
+
+                    round = game.move(source, ret[1])
+                    logger.log("Round = {0}".format(round))
+
+                    msg = SM_ROUNDINFO(round.round, str(round))
                     smessages.append({"id": game.player1.id, "opcode": msg.OP_CODE, "data": msg.get_data()})
                     smessages.append({"id": game.player2.id, "opcode": msg.OP_CODE, "data": msg.get_data()})
 

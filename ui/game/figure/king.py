@@ -36,6 +36,9 @@ class King(Figure):
         moves = (self.position, new_position)
         return moves
 
+    def short_name(self):
+        return "K"
+
     @classmethod
     def make_instances(cls):
         return [King(BLACK, (0, 4)), King(WHITE, (7, 4))]

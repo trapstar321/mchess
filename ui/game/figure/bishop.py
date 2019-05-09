@@ -23,6 +23,9 @@ class Bishop(Figure):
     def move_positions(self, new_position):
         return move_positions(self.position, new_position)
 
+    def short_name(self):
+        return "B"
+
     @classmethod
     def make_instances(cls):
         return [Bishop(BLACK, (0, 2)), Bishop(BLACK, (0, 5)), Bishop(WHITE, (7, 2)), Bishop(WHITE, (7, 5))]
